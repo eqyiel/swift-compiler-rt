@@ -263,7 +263,50 @@ endfunction()
 macro(darwin_add_builtin_libraries)
   set(DARWIN_EXCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Darwin-excludes)
 
-  set(CFLAGS "-fPIC -O3 -fvisibility=hidden -DVISIBILITY_HIDDEN -Wall -fomit-frame-pointer")
+  # On Darwin, it is assumed that certain things are made available by the
+  # -isysroot flag (like standard C headers and a few Darwin specific things),
+  # but it is not true in Nix. Do not overwrite CMAKE_C_FLAGS or
+  # CMAKE_CXX_FLAGS, to avoid errors like this:
+  #
+  # FAILED: lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingBuffer.c.o
+  # /tmp/nix-build-swift-5.1.1.drv-0/build/buildbot_osx/llvm-macosx-x86_64/./bin/clang -DKERNEL_USE  -O2 -g -DNDEBUG -arch i386 -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk    -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk -mmacosx-version-min=10.5 -fPIC -O3 -fvisibility=hidden -DVISIBILITY_HIDDEN -Wall -fomit-frame-pointer -arch i386 -mkernel -MD -MT lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingBuffer.c.o -MF lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingBuffer.c.o.d -o lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingBuffer.c.o   -c /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingBuffer.c
+  # In file included from /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingBuffer.c:10:
+  # In file included from /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfiling.h:13:
+  # In file included from /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingPort.h:82:
+  # /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingUtil.h:14:10: fatal error: 'stdio.h' file not found
+  # #include <stdio.h>
+  #          ^~~~~~~~~
+  # 1 error generated.
+  # [2/806][  0%][0.047s] Building C object lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingPlatformDarwin.c.o
+  # FAILED: lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingPlatformDarwin.c.o
+  # /tmp/nix-build-swift-5.1.1.drv-0/build/buildbot_osx/llvm-macosx-x86_64/./bin/clang -DKERNEL_USE  -O2 -g -DNDEBUG -arch i386 -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk    -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk -mmacosx-version-min=10.5 -fPIC -O3 -fvisibility=hidden -DVISIBILITY_HIDDEN -Wall -fomit-frame-pointer -arch i386 -mkernel -MD -MT lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingPlatformDarwin.c.o -MF lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingPlatformDarwin.c.o.d -o lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingPlatformDarwin.c.o   -c /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingPlatformDarwin.c
+  # In file included from /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingPlatformDarwin.c:10:
+  # In file included from /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfiling.h:13:
+  # In file included from /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingPort.h:82:
+  # /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingUtil.h:14:10: fatal error: 'stdio.h' file not found
+  # #include <stdio.h>
+  #          ^~~~~~~~~
+  # 1 error generated.
+  # [3/806][  0%][0.048s] Building C object lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfiling.c.o
+  # FAILED: lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfiling.c.o
+  # /tmp/nix-build-swift-5.1.1.drv-0/build/buildbot_osx/llvm-macosx-x86_64/./bin/clang -DKERNEL_USE  -O2 -g -DNDEBUG -arch i386 -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk    -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk -mmacosx-version-min=10.5 -fPIC -O3 -fvisibility=hidden -DVISIBILITY_HIDDEN -Wall -fomit-frame-pointer -arch i386 -mkernel -MD -MT lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfiling.c.o -MF lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfiling.c.o.d -o lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfiling.c.o   -c /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfiling.c
+  # /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfiling.c:11:10: fatal error: 'stdio.h' file not found
+  # #include <stdio.h>
+  #          ^~~~~~~~~
+  # 1 error generated.
+  # [4/806][  0%][0.049s] Building C object lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingWriter.c.o
+  # FAILED: lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingWriter.c.o
+  # /tmp/nix-build-swift-5.1.1.drv-0/build/buildbot_osx/llvm-macosx-x86_64/./bin/clang -DKERNEL_USE  -O2 -g -DNDEBUG -arch i386 -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk    -isysroot /nix/store/k7pshhy6ckj9z84ji8sw6grmjprynsgg-SDKs/MacOSX10.12.sdk -mmacosx-version-min=10.5 -fPIC -O3 -fvisibility=hidden -DVISIBILITY_HIDDEN -Wall -fomit-frame-pointer -arch i386 -mkernel -MD -MT lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingWriter.c.o -MF lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingWriter.c.o.d -o lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/__/profile/InstrProfilingWriter.c.o   -c /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingWriter.c
+  # /tmp/nix-build-swift-5.1.1.drv-0/src/llvm/projects/compiler-rt/lib/profile/InstrProfilingWriter.c:14:10: fatal error: 'string.h' file not found
+  # #include <string.h>
+  #          ^~~~~~~~~~
+  # 1 error generated.
+  # [10/806][  1%][0.063s] Building C object lib/builtins/CMakeFiles/clang_rt.cc_kext_i386_osx.dir/powixf2.c.odidf.c.o
+  # ninja: build stopped: subcommand failed.
+  # FAILED: tools/clang/runtime/compiler-rt-stamps/compiler-rt-build
+  #
+  set(CFLAGS "-fPIC -O3 -fvisibility=hidden -DVISIBILITY_HIDDEN -Wall -fomit-frame-pointer ${CMAKE_C_FLAGS}")
+  message(STATUS "Using CFLAGS ${CFLAGS}")
   set(CMAKE_C_FLAGS "")
   set(CMAKE_CXX_FLAGS "")
   set(CMAKE_ASM_FLAGS "")
